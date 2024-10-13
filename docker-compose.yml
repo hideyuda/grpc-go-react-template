@@ -1,0 +1,100 @@
+version: "3.8"
+networks:
+  grpc-go-react-template-network:
+    driver: bridge
+services:
+
+  # database mysql container
+    db:
+      container_name: grpc_go_react_template_local_db
+      image: mysql:8.0.30
+      networks:
+        - grpc-go-react-template-network
+      ports:
+        - 3306:3306
+      volumes:
+        - ./server-go/conf/conf.d:/etc/mysql/conf.d
+      environment:
+        MYSQL_DATABASE: grpc_go_react_template_local
+        MYSQL_ROOT_PASSWORD: password
+
+    # reverse proxy container
+    envoy:
+      container_name: grpc_go_react_template_local_envoy
+      build:
+        context: .
+        dockerfile: ./Dockerfile.envoy
+      ports:
+        - 9090:9090
+        - 9901:9901
+      networks:
+        - grpc-go-react-template-network
+
+    # database firestore container
+    # db:
+    #   container_name: grpc_go_react_template_local_firestore
+    #   build:
+    #     context: .
+    #     dockerfile: ./Dockerfile.firestore
+    #   ports:
+    #     - 8000:8000
+    #     - 4000:4000
+    #   volumes:
+    #     # - .cache/firebase/emulators/:/app/.cache/firebase/emulators/
+    #     - .:/app
+
+    # server container
+    # server:
+    #     build:
+    #       context: .
+    #       target: dev
+    #       dockerfile: ./server/Dockerfile.local
+    #     tty: true
+    #     expose:
+    #         - 8080
+    #     ports:
+    #       - 8080:8080
+    #     environment:
+
+    #       # PROJECT_ID: foo
+    #       # FIRESTORE_EMULATOR_HOST: host.docker.internal:8000
+    #     # command: ["air", "-c", ".air.toml"]
+    #     networks:
+    #       - grpc-go-react-template-network
+    #     env_file:
+    #        - .env
+    #     volumes:
+    #       - ./server-go:/go/src/app
+
+    # # batch container
+    # butler:
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile.local
+    #   networks:
+    #     - grpc-go-react-template-network
+    #   volumes:
+    #     - .:/go/src/app
+    #   env_file:
+    #     - .env
+    #   environment:
+    #     APP_SERVICE: batch
+    #     APP_BATCH_TYPE: butler
+    #     DB_HOST: db
+    #   depends_on:
+    #     - db
+    #   command: go run ./cmd/main.go
+
+    # # client container
+    # client:
+    #     container_name: grpc_go_react_template_local_client
+    #     build:
+    #       context: .
+    #       dockerfile: ./Dockerfile.client
+    #     expose:
+    #         - 3000
+    #     ports:
+    #       - 3000:3000    
+    #     command: ["yarn", "start"]
+    #     networks:
+    #       - grpc-go-react-template-network

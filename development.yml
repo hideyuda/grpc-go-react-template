@@ -1,0 +1,159 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: grpc-go-react-template
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grpc-go-react-template-config
+  namespace: grpc-go-react-template
+data:
+  MYSQL_DATABASE: grpc_go_react_template_local
+  MYSQL_ROOT_PASSWORD: password
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-go-react-template-local-db
+  namespace: grpc-go-react-template
+spec:
+  selector:
+    app: grpc-go-react-template-local-db
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-go-react-template-local-db
+  namespace: grpc-go-react-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-go-react-template-local-db
+  template:
+    metadata:
+      labels:
+        app: grpc-go-react-template-local-db
+    spec:
+      containers:
+      - name: grpc-go-react-template-local-db
+        image: mysql:8.0.30
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-conf
+          mountPath: /etc/mysql/conf.d
+        envFrom:
+        - configMapRef:
+            name: grpc-go-react-template-config
+      volumes:
+      - name: mysql-conf
+        hostPath:
+          path: ./server-go/conf/conf.d
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-go-react-template-local-envoy
+  namespace: grpc-go-react-template
+spec:
+  selector:
+    app: grpc-go-react-template-local-envoy
+  ports:
+    - protocol: TCP
+      port: 9090
+      targetPort: 9090
+    - protocol: TCP
+      port: 9901
+      targetPort: 9901
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-go-react-template-local-envoy
+  namespace: grpc-go-react-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-go-react-template-local-envoy
+  template:
+    metadata:
+      labels:
+        app: grpc-go-react-template-local-envoy
+    spec:
+      containers:
+      - name: grpc-go-react-template-local-envoy
+        image: grpc-go-react-template-local-envoy-image
+        ports:
+        - containerPort: 9090
+        - containerPort: 9901
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-go-react-template-local-server
+  namespace: grpc-go-react-template
+spec:
+  selector:
+    app: grpc-go-react-template-local-server
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-go-react-template-local-server
+  namespace: grpc-go-react-template
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grpc-go-react-template-local-server
+  template:
+    metadata:
+      labels:
+        app: grpc-go-react-template-local-server
+    spec:
+      containers:
+      - name: grpc-go-react-template-local-server
+        image: grpc-go-react-template-local-server-image
+        ports:
+        - containerPort: 8080
+        tty: true
+        volumeMounts:
+        - name: server-go
+          mountPath: /go/src/app
+      volumes:
+      - name: server-go
+        hostPath:
+          path: ./server-go
+
+---
+
+apiVersion: v1
+kind: Service

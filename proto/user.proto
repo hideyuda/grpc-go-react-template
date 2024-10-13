@@ -1,0 +1,157 @@
+syntax = "proto3";
+
+// Use convenience types defined and published as a package by Google
+import "google/protobuf/empty.proto";
+// import "google/protobuf/timestamp.proto";
+// import "google/protobuf/wrappers.proto";
+
+import "content.proto";
+import "like.proto";
+import "chat.proto";
+import "following.proto";
+import "point.proto";
+import "point_history.proto";
+import "view.proto";
+import "notification_setting.proto";
+
+// Specify the directory where the code is automatically generated
+// option go_package = "./";
+option go_package = "../server-go/pb";
+
+// Specify packagepl name to avoid name collision
+package user;
+
+// Method definition
+service UserService {
+  // general
+  // create 
+  rpc Create (User) returns (User) {}
+
+  // update 
+  rpc Update (User) returns (UserBoolResponse) {}
+
+  // delete
+  rpc Delete (UserIdRequest) returns (UserBoolResponse) {}
+
+  // get by id
+  rpc GetById (UserIdRequest) returns (User) {}
+
+  // get by uuid
+  rpc GetByUuid (UserUuidRequest) returns (User) {}
+
+  // get by user_type
+  rpc GetListByType (UserTypeRequest) returns (UserList) {}
+
+  // get latest list
+  rpc GetLatestList (google.protobuf.Empty) returns (UserList) {}
+
+  // get list by trend
+  rpc GetTrendList (google.protobuf.Empty) returns (UserList) {}
+
+  // get list by search
+  rpc GetListBySearch (UserSearchRequest) returns (UserList) {}
+
+  // get list by id list
+  // rpc GetUserListByIdList (UserIdListRequest) returns (UserList) {}
+
+  // admin
+  // get all
+  // rpc GetAll (google.protobuf.Empty) returns (UserList) {}
+
+  // auth
+  // SignIn 
+  rpc SignIn (SignInRequest) returns (User) {}
+
+  rpc SignInWithGoogle (User) returns (User) {}
+}
+
+// ユーザー情報を表すメッセージ型
+message User {
+  int64 id = 1;
+  string uuid = 2;
+  string firebase_id = 3;
+  string name = 4;
+  string email = 5;
+  string password = 6;
+  Type type = 7;
+  enum Type {
+    NONE = 0;
+    NORMAL = 1;
+    ADMIN = 2;
+    GUEST = 3;
+    DISABLED = 4;
+  }
+  string created_at = 8;
+  string updated_at = 9;
+  bool is_deleted = 10; 
+  
+  repeated content.Content content = 11;
+  repeated chat.ChatGroup chat_group = 13;
+
+  point.Point point = 14;
+  repeated point_history.PointHistory point_history = 15;
+
+  repeated following.Following following = 16;
+  repeated following.Following follower = 17;
+  repeated like.Like like = 18;
+  repeated view.View view = 19;
+  string phone_number = 20;
+  string photo_url = 21;
+  string description = 22;
+  repeated UserMedia media = 23;
+  notification_setting.NotificationSetting notification_setting = 24;
+}
+
+message UserMedia {
+  int64 id = 1;
+  string uuid = 2;
+  int64 user_id = 3;
+  MediaType type = 4;
+  enum MediaType {
+    NONE = 0;
+    IMAGE = 1;
+    VIDEO = 2;
+  }
+  string url = 5;
+  string created_at = 8;
+  string updated_at = 9;
+}
+
+message UserList {
+  repeated User user = 1;
+}
+
+// request
+message UserIdRequest {
+  int64 id = 1;
+}
+
+message UserUuidRequest {
+  string uuid = 1;
+}
+
+message UserIdListRequest {
+  repeated int64 id = 1;
+}
+
+message UserTypeRequest {
+  User.Type type = 1;
+}
+
+message UserSearchRequest {
+  int64 user_id = 1;
+  string free_word = 2;
+  content.ContentTool tool = 3;
+  content.ContentCategory category = 4;
+  content.ContentSubCategory sub_category = 5;
+}
+
+// response
+message UserBoolResponse {
+  bool error = 1;
+}
+
+// auth
+message SignInRequest {
+  string token = 1;
+}

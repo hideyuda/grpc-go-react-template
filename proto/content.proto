@@ -1,0 +1,332 @@
+syntax = "proto3";
+
+// Use convenience types defined and published as a package by Google
+import "google/protobuf/empty.proto";
+
+// import "like.proto";
+
+
+// Specify the directory where the code is automatically generated
+// option go_package = "./";
+option go_package = "../server-go/pb";
+
+// Specify package name to avoid name collision
+package content;
+
+// Method definition
+service ContentService {
+  // general
+  // create 
+  rpc Create (Content) returns (Content) {}
+
+  // update 
+  rpc Update (Content) returns (ContentBoolResponse) {}
+
+  // update impression
+  rpc UpdateImpressionByIdList (ContentIdListRequest) returns (ContentBoolResponse) {}
+
+  // update view
+  rpc UpdateView (ContentIdRequest) returns (ContentBoolResponse) {}
+
+  // update click
+  rpc UpdateClick (ContentIdRequest) returns (ContentBoolResponse) {}
+
+  // delete
+  rpc Detaillete (ContentIdRequest) returns (ContentBoolResponse) {}
+
+  // get by id
+  rpc GetById (ContentIdRequest) returns (Content) {}
+  
+  // get by uuid
+  rpc GetByUuid (ContentUuidRequest) returns (Content) {}
+
+  // get by id and user_id with like
+  rpc GetByUuidAndUser (ContentUuidAndUserIdRequest) returns (Content) {}
+
+  // get by user
+  rpc GetListByUser (ContentUserIdRequest) returns (ContentList) {}
+
+  // get by type
+  rpc GetListBySearch (ContentSearchRequest) returns (ContentList) {}
+
+  // get by latest id=user_id
+  rpc GetLatestList(google.protobuf.Empty) returns (ContentList) {}
+
+  // get by trend id=user_id
+  rpc GetTrendList(google.protobuf.Empty) returns (ContentList) {}
+
+  // get by recommend id=user_id
+  rpc GetRecommendedListByUser(ContentUserIdRequest) returns (ContentList) {}
+
+  // get by recommend id=content_id
+  rpc GetRecommendedListByContent(ContentIdRequest) returns (ContentList) {}
+
+  // get by sold id=user_id
+  rpc GetSoldListByUser(ContentSearchRequest) returns (ContentList) {}
+
+  rpc GetPurchasedListByUser(ContentSearchRequest) returns (ContentList) {}
+
+  // get by liked id=user_id
+  rpc GetLikedListByUser(ContentSearchRequest) returns (ContentList) {}
+
+  // get viewed list by user id
+  rpc GetViewedListByUser(ContentSearchRequest) returns (ContentList) {}
+
+  // get list by id list
+  rpc GetListByIdList (ContentIdListRequest) returns (ContentList) {}
+
+  // admin
+  // get all
+  rpc GetAll (google.protobuf.Empty) returns (ContentList) {}
+
+  // like
+  // update like
+  rpc CreateLike (ContentIdAndUserIdRequest) returns (ContentBoolResponse) {}
+
+  // delete like
+  rpc DeleteLike (ContentIdAndUserIdRequest) returns (ContentBoolResponse) {}
+
+}
+
+// ユーザー情報を表すメッセージ型
+message Content {
+  int64 id = 1;
+  string uuid = 2;
+  int64 user_id = 3;
+  string title = 4;
+  string description = 5;
+  string thumbnail = 6;
+  int64 price = 8;
+  int64 asp_rate = 9; // aspの料率
+  bool request_progress = 11; //コンテンツの審査
+  bool is_open = 12; //下書き false:下書き true:公開
+  string created_at = 13;
+  string updated_at = 14;
+  bool is_deleted = 15; 
+
+  repeated ContentDetail details = 16;
+  repeated ContentTool tools = 17;
+  repeated ContentCategory categories = 18;
+  repeated ContentSubCategory sub_categories = 19;
+  repeated ContentPreview previews = 20;
+
+  // repeated like.Like like = 20;
+
+  // not in db
+  int64 like_count = 21;
+  int64 impression_count = 22;
+  int64 view_count = 23;
+  int64 click_count = 24;
+  int64 order_count = 25;
+  int64 purchase_count = 26;
+  int64 review_count = 27;
+  int64 share_count = 28;
+  int64 asp_count = 29;
+  Currency currency = 30;
+  enum Currency {
+    USD = 0;
+    JPY = 1;
+    EUR = 2;
+    GBP = 3;
+  }
+  int64 star_rate = 31;
+
+  // not in db
+  int64 user_name = 32;
+  int64 user_icon = 33;
+  int64 user_description = 34;
+  bool is_liked = 35;
+  bool is_purchased = 36;
+}
+
+message ContentPreview {
+  int64 id = 1;
+  string uuid = 2;
+  int64 content_id = 3;
+  string preview_input = 4;
+  string preview_output = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message ContentDetail {
+  int64 id = 1;
+  string uuid = 2;
+  int64 content_id = 3;
+  string prompt = 6;
+  string testing_prompt = 7;
+  int64 engine = 9; // 1: gpt-3.5-turbo, 2: gpt-4
+  string prompt_instruction = 10;
+  string url = 11;
+  string created_at = 12;
+  string updated_at = 13;
+  bool is_deleted = 14;
+
+  // stable diffusion
+  StableDiffusionModel stable_diffusion_model = 100; // 1: v.1.4, 2: v.1.5, 3: v.2.0, 4: v.2.0.768, 5: v.2.1, 6: v.2.1.768
+  enum StableDiffusionModel {
+    V_1_4 = 0;
+    V_1_5 = 1;
+    V_2_0 = 2;
+    V_2_0_768 = 3;
+    V_2_1 = 4;
+    V_2_1_768 = 5;
+  }
+  StableDiffusionSampler stable_diffusion_sampler = 101; // 1: ddim, 2: plms, 3: k_euler, 4: k_enler_ancestral, 5: k_heun, 
+  enum StableDiffusionSampler {
+    Ddim = 0;
+    Plms = 1;
+    K_euler = 2;
+    K_enler_ancestral = 3;
+    K_heun = 4;
+    K_dpm2 = 5;
+    K_dpm2_ancestral = 6;
+    K_lms = 7;
+    K_dpmpp_2s_ancestral = 8;
+    K_dpmpp_2m = 9;
+  }
+  int64 image_width = 102;
+  int64 image_height = 103;
+  int64 cfg_scale = 104;
+  int64 steps = 105;
+  string seed = 106;
+  bool clip_guidance = 107;
+  string nagative_prompt = 108;
+
+  string title = 109;
+  string description = 110;
+
+}
+
+// service
+message ContentTool {
+  int64 id = 1;
+  string uuid = 2;
+  int64 content_id = 3;
+  Tool tool = 5;
+  enum Tool {
+    // https://ascii.jp/elem/000/004/124/4124022/
+    TOOL_UNKNOWN = 0;
+    ChatGPT = 1;
+    GPT_3 = 2;
+    DALL_E = 3;
+    Stable_Diffusion = 4;
+    Midjourney = 5;
+  }
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message ContentCategory {
+  int64 id = 1;
+  string uuid = 2;
+  int64 content_id = 3;
+  Category category = 5;
+    enum Category {
+  YOUTUBE = 0;
+  TWITTER = 1;
+  INSTAGRAM = 2;
+  FACEBOOK = 3;
+  LINKEDIN = 4;
+  TIKTOK = 5;
+  PINTEREST = 6;
+  REDDIT = 7;
+  SNAPCHAT = 8;
+  TUMBLR = 9;
+  TWITCH = 10;
+  WEIBO = 11;
+  WECHAT = 12;
+  WHATSAPP = 13;
+  LINE = 14;
+  TELEGRAM = 15;
+  VK = 16;
+  YAHOO = 17; 
+  OTHER = 18;
+}
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+// ユーザー情報を表すメッセージ型
+message ContentSubCategory {
+  int64 id = 1;
+  string uuid = 2;
+  int64 content_id = 3;
+  SubCategory sub_category = 5;
+    enum SubCategory {
+  YOUTUBE = 0;
+  TWITTER = 1;
+  INSTAGRAM = 2;
+  FACEBOOK = 3;
+  LINKEDIN = 4;
+  TIKTOK = 5;
+  PINTEREST = 6;
+  REDDIT = 7;
+  SNAPCHAT = 8;
+  TUMBLR = 9;
+  TWITCH = 10;
+  WEIBO = 11;
+  WECHAT = 12;
+  WHATSAPP = 13;
+  LINE = 14;
+  TELEGRAM = 15;
+  VK = 16;
+  YAHOO = 17; 
+  OTHER = 18;
+}
+  string created_at = 6;
+  string updated_at = 7;
+}
+
+message ContentList {
+  repeated Content content = 1;
+}
+
+// request
+message ContentIdRequest {
+  int64 id = 1;
+}
+
+// request
+message ContentIdAndUserIdRequest {
+  int64 id = 1;
+  int64 user_id = 2;
+}
+
+message ContentUuidRequest {
+  string uuid = 1;
+}
+
+// request
+message ContentUuidAndUserIdRequest {
+  string uuid = 1;
+  int64 user_id = 2;
+}
+
+message ContentIdListRequest {
+  repeated int64 id = 1;
+}
+
+message ContentUserIdRequest {
+  int64 user_id = 1;
+}
+
+// response
+message ContentBoolResponse {
+  bool error = 1;
+}
+
+message ContentSearchRequest {
+  int64 user_id = 1;
+  string keyword = 2;
+  repeated ContentTool.Tool tool = 3;
+  repeated ContentCategory.Category category = 4;
+  repeated ContentSubCategory.SubCategory sub_category = 5;
+  SortBy sort_by = 6;
+  enum SortBy {
+    NEWEST = 0;
+    HOTTEST = 1;
+    TOP = 2;
+    RECCOMEND = 3;
+  }
+}

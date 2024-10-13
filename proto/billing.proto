@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+// Use convenience types defined and published as a package by Google
+// import "google/protobuf/empty.proto";
+
+// Specify the directory where the code is automatically generated
+// option go_package = "./";
+option go_package = "../server-go/pb";
+
+// Specify package name to avoid name collision
+package billing;
+
+// Method definition
+service BillingService {
+  // create 
+  rpc Create (Billing) returns (Billing) {}
+
+  // update 
+  rpc Update (Billing) returns (BillingBoolResponse) {}
+
+  // delete
+  // rpc Delete (BillingIdRequest) returns (BillingBoolResponse) {}
+
+  // get by id
+  rpc GetById (BillingIdRequest) returns (Billing) {}
+
+  // get by uuid
+  rpc GetByUuid (BillingUuidRequest) returns (Billing) {}
+
+  // get by user id
+  rpc GetByUserId (BillingUserIdRequest) returns (BillingList) {}
+
+  // get by service
+  // rpc GetListByService (BillingServiceRequest) returns (BillingList) {}
+
+  // get list by id list
+  // rpc GetListByIdList (stream BillingIdListRequest) returns (BillingList) {}
+
+  // get all
+  // rpc GetAll (google.protobuf.Empty) returns (BillingList) {}
+}
+
+// ユーザー情報を表すメッセージ型
+message Billing {
+  int64 id = 1;
+  string uuid = 2;
+  int64 user_id = 3;
+  string title = 4;
+  string number = 5;
+  int64 expiration_year = 6;
+  int64 expiration_month = 7;
+  string security_code = 8;
+  string name = 9;
+  string password = 10;
+  Service service = 11;
+  enum Service {
+    NONE = 0;
+    CREDIT = 1;
+    BANK = 2;
+    CASH = 3;
+    PAYPAL = 4;
+  }
+  bool is_registered = 12;
+  string created_at = 13;
+  string updated_at = 14;
+  bool is_deleted = 15;
+}
+
+message BillingList {
+  repeated Billing billing = 1;
+}
+
+// request
+message BillingIdRequest {
+  int64 id = 1;
+}
+
+message BillingUuidRequest {
+  string uuid = 1;
+}
+
+message BillingIdListRequest {
+  repeated int64 id = 1;
+}
+
+message BillingUserIdRequest {
+  int64 user_id = 1;
+}
+
+// res
+message BillingBoolResponse {
+  bool error = 1;
+}

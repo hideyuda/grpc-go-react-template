@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+// Use convenience types defined and published as a package by Google
+import "google/protobuf/empty.proto";
+
+// Specify the directory where the code is automatically generated
+// option go_package = "./";
+option go_package = "../server-go/pb";
+
+// Specify package name to avoid name collision
+package click;
+
+// Method definition
+service ClickService {
+  // create 
+  rpc Create (Click) returns (Click) {}
+
+  // update 
+  rpc Update (Click) returns (ClickBoolResponse) {}
+
+  // delete
+  rpc Delete (ClickIdRequest) returns (ClickBoolResponse) {}
+
+  // get by id
+  rpc GetById (ClickIdRequest) returns (Click) {}
+
+  // get by user
+  rpc GetListByUser (ClickUserIdRequest) returns (ClickList) {}
+
+  // get by content
+  rpc GetListByContent (ClickContentIdRequest) returns (ClickList) {}
+
+  // get list by id list
+  rpc GetListByIdList (ClickIdListRequest) returns (ClickList) {}
+
+  // get all
+  rpc GetAll (google.protobuf.Empty) returns (ClickList) {}
+}
+
+// ユーザー情報を表すメッセージ型
+message Click {
+  int64 id = 1;
+  string uuid = 2;
+  int64 content_id = 3;
+  int64 user_id = 4;
+  string created_at = 5;
+  string updated_at = 6;
+}
+
+message ClickList {
+  repeated Click click = 1;
+}
+
+// request
+message ClickIdRequest {
+  int64 id = 1;
+}
+
+message ClickIdListRequest {
+  repeated int64 id = 1;
+}
+
+message ClickUserIdRequest {
+  int64 user_id = 1;
+}
+
+message ClickContentIdRequest {
+  int64 content_id = 1;
+}
+
+// response
+message ClickBoolResponse {
+  bool error = 1;
+}
