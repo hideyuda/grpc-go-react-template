@@ -32,7 +32,7 @@ run-py:
 
 .PHONY: proto
 proto:
-	sh ./scripts/generate_proto.sh ${LANG} ${FILE}
+	sh ./scripts/genpb.sh ${LANG} ${FILE}
 
 .PHONY: up
 up:

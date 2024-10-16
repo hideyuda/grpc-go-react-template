@@ -32,8 +32,6 @@ request.http
 
 /pb/
 
-envoy.local.yml
-envoy.dev.yml
-envoy.prd.yml
+grpc/
 
 *tf
