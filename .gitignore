@@ -30,8 +30,6 @@ request.http
 
 *.sum
 
-/pb/
-
 grpc/
 
 *tf
